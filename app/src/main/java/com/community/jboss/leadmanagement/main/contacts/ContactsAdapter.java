@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,12 +49,16 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     private ContactsAdapter mAdapter;
     public AdapterListener mListener;
     private List<Contact> spareData;
+    private ViewHolder mViewHolder;
+    private int REQUEST_CODE=234;
+    private Fragment mFragment;
 
-    public ContactsAdapter(AdapterListener listener) {
+    public ContactsAdapter(AdapterListener listener,Fragment fragment) {
         mListener = listener;
         mAdapter = this;
         mContacts = new ArrayList<>();
         spareData = new ArrayList<>();
+        mFragment=fragment;
     }
 
     @Override
@@ -120,6 +125,15 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         void onContactDeleted(Contact contact);
     }
 
+    public void onActivityResult(int requestCode,int resultCode, Intent data ){
+        if(requestCode==REQUEST_CODE){
+            if(resultCode==Activity.RESULT_OK){
+                mViewHolder.contactNum.setText(data.getStringExtra("number"));
+                mViewHolder.popupName.setText(data.getStringExtra("name"));
+            }
+        }
+    }
+
     final class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener, View.OnLongClickListener {
         @BindView(R.id.contact_name)
@@ -136,6 +150,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         private Context mContext;
         private PermissionManager permManager;
         private SharedPreferences mPref;
+        private TextView popupName;
+        private TextView contactNum;
 
         ViewHolder(View v) {
             super(v);
@@ -184,8 +200,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             detailDialog = new Dialog(context);
 
             TextView txtClose;
-            TextView popupName;
-            TextView contactNum;
             TextView mail;
             TextView location;
             TextView notes;
@@ -210,10 +224,11 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             btnMsg = detailDialog.findViewById(R.id.btn_msg);
             mail = detailDialog.findViewById(R.id.popupMail);
             layout = detailDialog.findViewById(R.id.popupLayout);
-            image = detailDialog.findViewById(R.id.details_image);
-            location = detailDialog.findViewById(R.id.details_adress);
             notes = detailDialog.findViewById(R.id.details_note);
+            location = detailDialog.findViewById(R.id.details_adress);
+            image = detailDialog.findViewById(R.id.details_image);
             notes_hint = detailDialog.findViewById(R.id.details_note_hint);
+            mViewHolder=this;
 
             helper_email = detailDialog.findViewById(R.id.popup_helper_email);
             helper_phone = detailDialog.findViewById(R.id.popup_helper_phone);
@@ -250,7 +265,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
                 public void onClick(View view) {
                     final Intent intent = new Intent(context, EditContactActivity.class);
                     intent.putExtra(EditContactActivity.INTENT_EXTRA_CONTACT_NUM, number.getText().toString());
-                    context.startActivity(intent);
+                    mFragment.startActivityForResult(intent,REQUEST_CODE);
                 }
             });
 

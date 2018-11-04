@@ -2,6 +2,7 @@ package com.community.jboss.leadmanagement.main.contacts;
 
 import android.animation.LayoutTransition;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -55,7 +56,7 @@ public class ContactsFragment extends MainFragment implements ContactsAdapter.Ad
             activity.initFab();
         }
 
-        mAdapter = new ContactsAdapter(this);
+        mAdapter = new ContactsAdapter(this,this);
         recyclerView.setAdapter(mAdapter);
 
         textView.setVisibility(View.GONE);
@@ -144,5 +145,11 @@ public class ContactsFragment extends MainFragment implements ContactsAdapter.Ad
             textView.setVisibility(View.GONE);
         }
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
+        mAdapter.onActivityResult(requestCode, resultCode, data);
     }
 }

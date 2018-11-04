@@ -190,7 +190,10 @@ public class EditContactActivity extends AppCompatActivity {
         final String number = contactNumberField.getText().toString();
         mViewModel.saveContactNumber(number);
         mViewModel.saveData(email, location, query, image, notes);
-
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("name",name);
+        returnIntent.putExtra("number",number);
+        setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }
 
